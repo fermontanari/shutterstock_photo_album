@@ -1,0 +1,25 @@
+#painel {
+    background-color: lightblue;
+    min-width: 400px;
+    min-height: 400px;
+}
+div.row.search {
+    padding-bottom: 20px;
+}
+.testimonial-group > .row {
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.testimonial-group > .row > .col-xs-4 {
+  display: inline-block;
+  float: none;
+}
+.testimonial-group > .row > .col-xs-6 {
+  display: inline-block;
+  float: none;
+}
+p.display-text{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
