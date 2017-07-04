@@ -11,9 +11,8 @@
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script>
         var clientId = 'a72167bdf897f314b741'; // Application ID
-        var clientSecret = 'f1699e23f3a3781f2178be3ec0d0db4389838f13'; // Application ID
+        var clientSecret = 'f1699e23f3a3781f2178be3ec0d0db4389838f13'; // Application Secret
         var local_url = 'http://localhost/photo-album/index.html'; // URL da página
-        var audio;
 
         $(document).ready(loadCategories());
         $(document).ready(loadDisplayImages());
@@ -26,6 +25,29 @@
                 return;
             }
             return 'Basic ' + window.btoa(clientId + ':' + clientSecret);
+        }
+
+        function loadCategories() {
+            authorization = encodeAuthorization();
+            if (!authorization) return;
+            $.ajax({
+                url: 'https://api.shutterstock.com/v2/images/categories',
+                headers: {
+                    Authorization: authorization
+                },
+                dataType: "json",
+                success: function (data) {
+                    var strSaida = '';
+                    for (i = 0; i < data.data.length; i++) {
+                        strSaida += '<div class="col-xs-2 col-md-1"><a onclick="loadImagesFromCategory(this.title)" class="thumbnail" title="' + 
+                            data.data[i].name + '">' + '<img  src="resources/icons/folder.jpg" > <p class="display-text" id="category-name' + i +'"> ' + 
+                            data.data[i].name + '</p></a> </div>';
+                    }
+                    $('#category-items').html(strSaida);
+                }
+            }).fail(function(xhr, status, err) {
+                alert('Failed to retrieve Catgories details:\n' + JSON.stringify(xhr.responseJSON, null, 2));
+          });;
         }
 
         function loadDisplayImages() {
@@ -52,14 +74,14 @@
           });;
         }
 
-        function loadImagesFromCategory() {
+        function loadImagesFromCategory(categoryName)  {
             authorization = encodeAuthorization();
             if (!authorization) return;
-            
+            $('#album-photo-title').html('Loading Photos from Album ' + categoryName) ;
             $.ajax({
                 url: 'https://api.shutterstock.com/v2/images/search',
                 data: {
-                    category: $('#category-name').val()
+                    category: categoryName
                 },
                 headers: {
                     Authorization: authorization
@@ -73,7 +95,7 @@
                             data.data[i].description + '"> <p class="display-text"> ' + 
                             data.data[i].description + '</p> </div>';
                     }
-                    $('#album-photo-title').html('Photos from Album ');
+                    $('#album-photo-title').html('Photos from Album ' + categoryName);
                     $('#category-photo-items').html(strSaida);
                 }
             }).fail(function(xhr, status, err) {
@@ -101,39 +123,12 @@
                             data.data[i].description + '"> <p class="display-text"> ' + 
                             data.data[i].description + '</p> </div>';
                     }
+                    $('#photo-title').html('Results from search: ' + $('#searchquery').val());
                     $('#photo-items').html(strSaida);
                 }
             }).fail(function(xhr, status, err) {
                 alert('Failed to retrieve IMAGES details:\n' + JSON.stringify(xhr.responseJSON, null, 2));
           });;
-        }
-
-        function loadCategories() {
-            authorization = encodeAuthorization();
-            if (!authorization) return;
-            $.ajax({
-                url: 'https://api.shutterstock.com/v2/images/categories',
-                headers: {
-                    Authorization: authorization
-                },
-                dataType: "json",
-                success: function (data) {
-                    var strSaida = '';
-                    for (i = 0; i < data.data.length; i++) {
-                        strSaida += '<div class="col-xs-6 col-md-1"><a onclick="loadImagesFromCategory()" class="thumbnail" title="' + 
-                            data.data[i].name + '">' + '<img  src="resources/icons/folder.jpg" > <p class="display-text" id="category-name"> ' + 
-                            data.data[i].name + '</p></a> </div>';
-                    }
-                    $('#category-items').html(strSaida);
-                }
-            }).fail(function(xhr, status, err) {
-                alert('Failed to retrieve Catgories details:\n' + JSON.stringify(xhr.responseJSON, null, 2));
-          });;
-        }
-
-        function play(url) {
-            audio = new Audio(url);
-            audio.play();
         }
 
     </script>
@@ -155,7 +150,7 @@
             </div>
 
             <div class="panel panel-default">
-                <div class="panel-heading">Photos</div>
+                <div class="panel-heading" id="photo-title">Photos</div>
                 <div class="panel-body testimonial-group">
                     <div class="row" id="photo-items">
                         
